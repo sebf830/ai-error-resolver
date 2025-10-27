@@ -1,5 +1,4 @@
 <?php
-// src/Controller/TestErrorController.php
 namespace App\Controller;
 
 use LogicException;
