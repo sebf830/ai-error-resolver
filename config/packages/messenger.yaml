@@ -1,0 +1,21 @@
+framework:
+    messenger:
+        buses:
+            messenger.bus.default: ~
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: messages
+                        type: fanout
+                    queues:
+                        error_queue: ~
+        routing:
+            'App\Message\ErrorReport': async
+# framework:
+#     messenger:
+#         buses:
+#             messenger.bus.default: ~
+#         transports: ~    # aucun transport
+#         routing: []  
