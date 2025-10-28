@@ -23,3 +23,10 @@ Renseigner les token mercure & api definis dans le symfony .env
 - Améliorer la performance du prompt.
 - Créer des alertes (emails, slack, intranet..)
 
+
+<div style="display:flex;justify-content:space-between gap:10px;">
+<img width="320" height="180" alt="img1" src="https://github.com/sebf830/ai-error-resolver/blob/master/monitoring/screenshots/1.png">
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<img width="320" height="180"alt="img1" src="https://github.com/sebf830/ai-error-resolver/blob/master/monitoring/screenshots/2.png">
+</div>
+
