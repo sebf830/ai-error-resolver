@@ -28,7 +28,6 @@ OpenAPI : génération de solutions automatiques
 Alpine.js : Gestion du dashboard  
 
 
-
 ## Mise en place 
 Lancer le conteneur mercure
 ```
@@ -45,6 +44,12 @@ php bin/console messenger:consume async
 Servez le fichier /monitoring/dashboard.html (si php)
 ``` 
 php -S localhost:8001 
-``` 
+```   
 
+
+## Améliorations possibles (prochainement?)
+- Transformer une simple remontée d'erreur en un ticket opérationnel avec cycle de vie(avancement, responsable, observations..)
+- Définir des droits de visibilité par service, par utilisateur
+- Améliorer la performance du prompt.
+- Créer des alertes (emails, slack, intranet..)
 
