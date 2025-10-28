@@ -1,4 +1,10 @@
-# ai-error-resolver-monitoring
+# ai-error-resolver-monitoring  
+
+<div style="display:flex;justify-content:space-between gap:10px;">
+<img width="320" height="180" alt="img1" src="https://github.com/sebf830/ai-error-resolver/blob/master/monitoring/screenshots/1.png">
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<img width="320" height="180"alt="img1" src="https://github.com/sebf830/ai-error-resolver/blob/master/monitoring/screenshots/2.png">
+</div>
 
 ## Description
 Tableau de bord de supervision des erreurs centralisées sur ai-error-resolver.
@@ -22,11 +28,4 @@ Renseigner les token mercure & api definis dans le symfony .env
 - Définir des droits de visibilité par service, par utilisateur
 - Améliorer la performance du prompt.
 - Créer des alertes (emails, slack, intranet..)
-
-
-<div style="display:flex;justify-content:space-between gap:10px;">
-<img width="320" height="180" alt="img1" src="https://github.com/sebf830/ai-error-resolver/blob/master/monitoring/screenshots/1.png">
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-<img width="320" height="180"alt="img1" src="https://github.com/sebf830/ai-error-resolver/blob/master/monitoring/screenshots/2.png">
-</div>
 
