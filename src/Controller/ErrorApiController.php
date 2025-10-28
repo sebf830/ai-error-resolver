@@ -38,7 +38,7 @@ class ErrorApiController extends AbstractController
     }
 
     #[Route('/api/errors', name: 'api_get_errors', methods: ['GET'])]
-    public function list(Request $request, EntityManagerInterface $em): JsonResponse
+    public function get_list(Request $request, EntityManagerInterface $em): JsonResponse
     {
         if(!$this->authenticateRequest($request))  return new JsonResponse(['status' => 'ko', 'message' => 'Missing or invalid Authorization/token'], 401);
 
@@ -56,7 +56,8 @@ class ErrorApiController extends AbstractController
         ], $logs), 200);
     }
 
-    private function authenticateRequest($request){
+    private function authenticateRequest($request)
+    {
         $header = $request->headers->get('Authorization'); 
         if (!$header || !str_starts_with($header, 'Bearer ')) return false;
 

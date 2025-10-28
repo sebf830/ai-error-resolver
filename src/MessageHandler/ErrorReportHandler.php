@@ -57,11 +57,9 @@ class ErrorReportHandler
             $solution = str_replace('```', '', $solution);
             $solution = trim($solution);
 
-            // Save in correct json format
             $log->setSolution($solution);
             $this->em->flush();
 
-            // Send in html format
             $payload['solution'] = $log->getSolution();
             $update = new Update('https://example.com/errors',  json_encode($payload));
 
