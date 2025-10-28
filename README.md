@@ -1,7 +1,7 @@
 # ai-error-resolver
 
 ## Description
-Ce service de capture les erreurs internes ou distantes, les journalise, et diffuse instantanément une analyse ou une solution générée par ChatGPT à toutes les interfaces abonnées via Mercure..
+Ce service capture les erreurs internes ou distantes, les journalise, et diffuse instantanément une analyse/solution générée par ChatGPT à toutes les interfaces abonnées via Mercure..
 
 
 ## Fonctionalités
@@ -36,14 +36,15 @@ docker-compose up -d
 
 Créer et peupler la bdd  
 
-Lancer le worker 
+Lancer le worker amqp
 ```
 php bin/console messenger:consume async
 ``` 
 
-Servez le fichier /monitoring/dashboard.html (si php)
+Servir le fichier /monitoring/dashboard.html sur un serveur distant
 ``` 
 php -S localhost:8001 
+python -m http.server 8001
 ```   
 
 

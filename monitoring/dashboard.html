@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoring Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<style>
+pre code {
+  display: block;
+  background-color: #0d1117;
+  color: #e6edf3;
+  padding: 1rem;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  position: relative;
+}
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #30363d;
+  color: #e6edf3;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color 0.2s ease;
+}
+.copy-btn:hover {
+  background-color: #484f58;
+}
+</style>
+</head>
+<body x-data="errorsDashboard" x-init="init()" class="bg-[#0d1117] text-[#e6edf3] font-sans p-8">
+
+    <h1 class="text-2xl text-center text-[#58a6ff] mb-8">Monitoring</h1>
+
+    <!-- Table -->
+    <div class="overflow-x-auto shadow-lg rounded-xl bg-[#161b22]">
+        <table class="min-w-full divide-y divide-[#30363d]">
+            <thead class="bg-[#21262d] uppercase text-xs text-[#c9d1d9] tracking-wider">
+                <tr>
+                    <th class="px-4 py-3 text-left">Heure</th>
+                    <th class="px-4 py-3 text-left">Service</th>
+                    <th class="px-4 py-3 text-left">Message</th>
+                    <th class="px-4 py-3 text-left">Scenario</th>
+                    <th class="px-4 py-3 text-left">Contexte technique</th>
+                    <th class="px-4 py-3 text-left">Solution</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#30363d]">
+                <template x-for="error in errors" :key="error.id">
+                    <tr class="hover:bg-[#23863633] transition">
+                        <td class="px-4 py-3 text-sm" x-text="error.time"></td>
+                        <td class="px-4 py-3 text-sm" x-text="error.serviceType"></td>
+                        <td class="px-4 py-3 text-sm" x-text="error.message"></td>
+                        <td class="px-4 py-3 text-sm" x-text="error.scenario"></td>
+                        <td class="px-4 py-3 text-sm" x-text="error.technicalContext"></td>
+                        <td class="px-4 py-3">
+                            <button 
+                                class="bg-[#238636] hover:bg-[#2ea043] text-white text-sm px-3 py-1 rounded text-sm"
+                                @click="openPanel(error.solution)"
+                            >
+                                Visualiser
+                            </button>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Sliding Panel -->
+    <div 
+        class="fixed top-0 right-0 w-full md:w-2/3 lg:w-1/2 h-full bg-[#161b22] shadow-xl transform transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
+        :class="{ 'translate-x-0': panelOpen, 'translate-x-full': !panelOpen }"
+    >
+        <div class="flex justify-between items-center p-4 border-b border-[#30363d]">
+            <h2 class="text-lg font-semibold text-[#58a6ff]">Solution de ChatGPT</h2>
+            <button @click="closePanel" class="text-[#8b949e] hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+
+        <div class="p-6 space-y-4" x-html="formattedSolution"></div>
+    </div>
+
+<script>
+function errorsDashboard() {
+    return {
+        errors: [],
+        panelOpen: false,
+        formattedSolution: '',
+        mercureConnected: false,
+
+        init() {
+            if (this.mercureConnected) return;
+            this.mercureConnected = true;
+
+            const apiToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NjE1OTYyMDMuMzE1NjIzLCJleHAiOjE3OTMxMzIyMDMuMzE1NjIzfQ.tdSoJJA_ljAt27wzHHRLH-HW2lYoI6ngdVlVOWjYWbQ';
+            const mercureToken = 'w4vK6-qT9Y8mL3FjP2xQzR1b9W0h6uXyA-Nf7Dk5Hs0=';
+
+            // Récupération initiale
+            fetch('https://127.0.0.1:8000/api/errors', {
+                method: 'GET', 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiToken}`
+                }
+            })
+            .then(r => r.json())
+            .then(data => this.errors = data);
+
+            // Connexion Mercure
+            const url = new URL('http://localhost:3000/.well-known/mercure');
+            url.searchParams.append('topic', 'https://example.com/errors');
+            url.searchParams.append('jwt', mercureToken);
+
+            const eventSource = new EventSource(url);
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                this.errors.unshift(data);
+                if (this.errors.length > 50) this.errors.pop();
+            };
+        },
+
+        
+        closePanel() {
+            this.panelOpen = false;
+            this.formattedSolution = '';
+        },
+        
+        openPanel(solution) {
+            this.formattedSolution = this.parseSolution(solution);
+            this.panelOpen = true;
+            this.$nextTick(() => this.addCopyButtons());
+        },
+
+        parseSolution(rawSolution) {
+            console.log(rawSolution)
+            let html = '';
+            try {
+                const solutions = typeof rawSolution === 'string' ? JSON.parse(rawSolution) : rawSolution;
+                solutions.forEach(sol => {
+                    const key = Object.keys(sol)[0];
+                    const val = sol[key];
+                    // Titre principal / alternative
+                    html += `<h1 class="text-xl text-[#58a6ff] font-bold mt-4">${key.replace('_', ' ')}</h1>`;
+
+                    // Parcours des champs (explication_erreur, explication_correctif)
+                    ['explication_erreur', 'explication_correctif'].forEach(field => {
+                        if(val[field]) {
+                            html += `<p class="mt-2">${this.escapeHtml(val[field])}</p>`;
+                        }
+                    });
+
+                    // Code
+                    if(val.code_correctif) {
+                        html += this.formatCode(val.code_correctif);
+                    }
+                });
+            } catch (e) {
+                html = `<p>Impossible d'afficher la solution.</p>`;
+            }
+            return html;
+        },
+
+        formatCode(text) {
+            if (!text) return '';
+            const clean = text.replace(/<code>/g, '').replace(/<\/code>/g, '');
+            return `
+                <div class="relative mt-4">
+                    <svg class="copy-btn z-10 bg-[#0d1117]" data-code="${encodeURIComponent(clean)}" xmlns="http://www.w3.org/2000/svg" height="38px" viewBox="0 -960 960 960" width="38px" fill="#CCCCCC"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
+                    <pre class="bg-[#0d1117] text-white rounded p-6 overflow-x-auto"><code>${this.escapeHtml(clean)}</code></pre>
+                </div>`;
+        }, 
+
+        escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        },
+
+        addCopyButtons() {
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const code = decodeURIComponent(btn.dataset.code);
+                    navigator.clipboard.writeText(code);
+                    btn.textContent = 'Copié !';
+                    setTimeout(() => btn.textContent = 'Copier', 2000);
+                });
+            });
+        }
+    }
+}
+</script>
+</body>
+</html>
