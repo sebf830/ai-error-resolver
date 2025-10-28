@@ -17,11 +17,11 @@ class TestController extends AbstractController
         switch($type){
             // erreur non reportées
             case 'notfound' : 
-                throw new NotFoundHttpException('Erreur 404 in testController');
+                throw new NotFoundHttpException('404 - testController');
             case 'forbidden':
-                throw new AccessDeniedHttpException('Accès refusé - Forbidden exception');
+                throw new AccessDeniedHttpException('403 in testController');
             case 'unauthorized':
-                throw new UnauthorizedHttpException('Basic', 'Non autorisé - Unauthorized exception');
+                throw new UnauthorizedHttpException('401 in testController');
 
             // erreur 500 handlées
             case 'logic': 
@@ -29,19 +29,19 @@ class TestController extends AbstractController
             case 'runtime':
                 throw new \RuntimeException('RuntimeException in testController');
             case null:
-                throw new \Exception("Erreur 500 in testController");
+                throw new \Exception("500 in testController");
             default:
-                throw new \Exception("Exception inconnue ' in testController");
+                throw new \Exception("default 500 in testController");
 
             // PHP warning
             case 'notice': 
-                trigger_error("PHP erreur utilisateur", E_USER_NOTICE);
+                trigger_error("PHP warning", E_USER_NOTICE);
             // PHP critiques - arret script - FatalErrorHandler
             case 'critical': 
                 trigger_error("Erreur critique", E_ERROR);
             case 'critical_user': 
                 trigger_error("Erreur critique utilisateur", E_USER_ERROR);
         }
-        throw new \Exception("Exception inconnue ' in testController");
+        throw new \Exception("500 inconnue in testController");
     }
 }
