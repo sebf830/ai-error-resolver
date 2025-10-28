@@ -14,7 +14,8 @@ Permet aux interfaces abonnées au hub mercure :
 
 ## Tester 
 Le fichier dashboard.html doit être servi sur localhost:8001
-Les branchement à mercure et à l'api ai-error-resolver se font automatiquement.
+Les branchement à mercure et à l'api ai-error-resolver se font automatiquement.  
+Renseigner les token mercure & api definis dans le symfony .env
 
 ## Améliorations possibles (prochainement?)
 - Transformer une simple remontée d'erreur en un ticket opérationnel avec cycle de vie(avancement, responsable, observations..)
