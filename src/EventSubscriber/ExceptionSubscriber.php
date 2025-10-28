@@ -49,11 +49,11 @@ class ExceptionSubscriber implements EventSubscriberInterface
                 'user_agent' => $event->getRequest()->headers->get('User-Agent'),
                 'ip' => $event->getRequest()->getClientIp(),
             ],
-            scenario: "
-                'Requete : {$event->getRequest()->getMethod()}, 
-                 uri : {$event->getRequest()->getRequestUri()},
-                 route: {$event->getRequest()->attributes->get('_route')},
-                 controller : {$event->getRequest()->attributes->get('_controller')}",
+            scenario: 
+                 "Requete : {$event->getRequest()->getMethod()}\n" . 
+                 "uri : {$event->getRequest()->getRequestUri()}\n" . 
+                 "route: {$event->getRequest()->attributes->get('_route')}\n" . 
+                 "controller : {$event->getRequest()->attributes->get('_controller')}\n",
             
             message: $e->getMessage(),
             stacktrace: implode("\n", array_slice(explode("\n", $e->getTraceAsString()), 0, 50)),

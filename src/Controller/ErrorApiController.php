@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-
 class ErrorApiController extends AbstractController
 {
     public function __construct(
@@ -21,21 +20,18 @@ class ErrorApiController extends AbstractController
     #[Route('/api/error', name: 'api_create_error', methods: ['POST'])]
     public function __invoke(Request $request, MessageBusInterface $bus): JsonResponse
     {
-        if(!$this->authenticateRequest($request)) {
-            return new JsonResponse(['status' => 'ko', 'message' => 'Missing or invalid Authorization/token'], 401);
-        }
+        if(!$this->authenticateRequest($request)) return new JsonResponse(['status' => 'ko', 'message' => 'Missing or invalid Authorization/token'], 401);
 
         $data = json_decode($request->getContent(), true);
 
         $error = new ErrorReport(
-            serviceType: $data['serviceType'] ?? 'unknown',
+            serviceType: $data['serviceType'] ?? '',
             scenario: $data['scenario'] ?? '',
             message: $data['message'] ?? '',
             stacktrace: $data['stacktrace'] ?? '',
             technicalContext: json_encode($data['technicalContext']) ?? [],
             datas: json_encode($data['datas']) ?? []
         );
-
         $bus->dispatch($error); 
 
         return new JsonResponse(['status' => 'ok', 'message' => 'Erreur en cours de traitement']);
@@ -44,9 +40,7 @@ class ErrorApiController extends AbstractController
     #[Route('/api/errors', name: 'api_get_errors', methods: ['GET'])]
     public function list(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        if(!$this->authenticateRequest($request)) {
-            return new JsonResponse(['status' => 'ko', 'message' => 'Missing or invalid Authorization/token'], 401);
-        }
+        if(!$this->authenticateRequest($request))  return new JsonResponse(['status' => 'ko', 'message' => 'Missing or invalid Authorization/token'], 401);
 
         $logs = $em->getRepository(ErrorLog::class)->findBy([], ['createdAt' => 'DESC'], 50);
 
@@ -58,7 +52,7 @@ class ErrorApiController extends AbstractController
             'trace' => $log->getStacktrace() ?? 'undefined',
             'scenario' => $log->getScenario() ?? 'undefined',
             'technicalContext' => is_array($log->getTechnicalContext()) ? json_encode($log->getTechnicalContext()) :  'aucun contexte',
-            'solution' => $log->getDatas()['solution'] ?? 'aucune solution',
+            'solution' => $log->getSolution() ? $log->getSolution() : [],
         ], $logs), 200);
     }
 

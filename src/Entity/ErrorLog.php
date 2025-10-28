@@ -32,6 +32,9 @@ class ErrorLog
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $datas = [];
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $solution = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -50,6 +53,11 @@ class ErrorLog
     public function getScenario(): ?string
     {
         return $this->scenario;
+    }
+
+     public function getSolution(): ?string
+    {
+        return $this->solution;
     }
 
     public function getTechnicalContext(): ?array
@@ -94,6 +102,12 @@ class ErrorLog
     public function setScenario(string $scenario): self
     {
         $this->scenario = $scenario;
+        return $this;
+    }
+
+    public function setSolution(string $solution): self
+    {
+        $this->solution = $solution;
         return $this;
     }
 

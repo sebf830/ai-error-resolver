@@ -19,7 +19,7 @@ class ErrorReportHandler
         private ChatGptResolver $chatGptResolver,
         private HubInterface $mercureHub,
         private LoggerInterface $logger ,
-        private ManagerRegistry $doctrine,
+        private ManagerRegistry $doctrine
     ) {}
 
     public function __invoke(ErrorReport $error)
@@ -28,13 +28,12 @@ class ErrorReportHandler
 
         if (!$this->em->isOpen()) $this->em = $this->doctrine->resetManager();
 
-        // 1️⃣ Persister l'erreur en DB
         $log = new ErrorLog();
-        $log->setServiceType($error->serviceType);
-        $log->setScenario($error->scenario);
+        $log->setServiceType(trim($error->serviceType));
+        $log->setScenario(trim($error->scenario));
         $log->setTechnicalContext(is_array($error->technicalContext) ? $error->technicalContext : []);
-        $log->setMessage($error->message);
-        $log->setStacktrace($error->stacktrace);
+        $log->setMessage(trim($error->message));
+        $log->setStacktrace(trim($error->stacktrace));
         $log->setCreatedAt(new \DateTimeImmutable());
         $log->setDatas(is_array($error->datas) ? $error->datas : []);
         $this->em->persist($log);
@@ -48,29 +47,28 @@ class ErrorReportHandler
             'trace' => (string)$log->getStacktrace() ?? 'undefined',
             'scenario' => (string)$log->getScenario() ?? 'undefined',
             'technicalContext' => is_array($log->getTechnicalContext()) ? json_encode($log->getTechnicalContext()) :  'aucun contexte',
+            'datas' => $log->getDatas() ? json_encode($log->getDatas()) : 'undefined',
             'solution' => '',
-            'status' => ''
         ];
 
-        // 2️⃣ Appel ChatGPT pour obtenir une solution
         try {
-            $solution = $this->chatGptResolver->resolveWithretry($log, 2);
-            $solutionString = $solution === null ? "Failure or no response from GPT" : json_encode($solution);
+            $solution = $this->chatGptResolver->resolve($log) ?? "Failure or no response from GPT";
+            $solution = str_replace('```json', '', $solution);
+            $solution = str_replace('```', '', $solution);
+            $solution = trim($solution);
 
-            $datas = $log->getDatas() ?? [];
-            
-            $datas = array_merge($datas, ['solution' => $solutionString]);
-            $log->setDatas($datas);
-
+            // Save in correct json format
+            $log->setSolution($solution);
             $this->em->flush();
 
-            $payload['solution'] = $solutionString ?? 'aucune solution';
+            // Send in html format
+            $payload['solution'] = $log->getSolution();
             $update = new Update('https://example.com/errors',  json_encode($payload));
 
             $this->mercureHub->publish($update);
 
         } catch (\Throwable $e) {
-            $payload['solution'] = 'aucune solution';
+            $payload['solution'] = 'Failure or no response from GPT';
 
             try{
                 $this->mercureHub->publish(new Update('https://example.com/errors', json_encode($payload)));
