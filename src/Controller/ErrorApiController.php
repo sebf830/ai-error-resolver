@@ -29,8 +29,8 @@ class ErrorApiController extends AbstractController
             scenario: $data['scenario'] ?? '',
             message: $data['message'] ?? '',
             stacktrace: $data['stacktrace'] ?? '',
-            technicalContext: json_encode($data['technicalContext']) ?? [],
-            datas: json_encode($data['datas']) ?? []
+            technicalContext: $data['technicalContext'] ?? [],
+            datas: $data['datas'] ?? []
         );
         $bus->dispatch($error); 
 

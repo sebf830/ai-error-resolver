@@ -66,6 +66,5 @@ class ExceptionSubscriber implements EventSubscriberInterface
             ]
         );
          $this->bus->dispatch($error);
-
     }
 }
